@@ -1,0 +1,41 @@
+From ef22662909a294b282ab3f746e20b7a508975c70 Mon Sep 17 00:00:00 2001
+From: Bobi Mihalca <bobby.mihalca@touchtech.ro>
+Date: Wed, 26 Jun 2024 01:26:13 +0300
+Subject: [PATCH] ALSA: hda/realtek: Add quirk for Lenovo Yoga Pro 7 14IMH9
+
+Signed-off-by: Bobi Mihalca <bobby.mihalca@touchtech.ro>
+---
+ sound/pci/hda/patch_realtek.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index d6af61e..7a02fcf 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6865,9 +6865,23 @@ static void cs35l41_fixup_spi_four(struct hda_codec *codec, const struct hda_fix
+ 	comp_generic_fixup(codec, action, "spi", "CSC3551", "-%s:00-cs35l41-hda.%d", 4);
+ }
+ 
++static void alc287_fixup_yoga9_14iap7_bass_spk_pin(struct hda_codec *codec,
++					  const struct hda_fixup *fix, int action);
++
+ static void alc287_fixup_legion_16achg6_speakers(struct hda_codec *cdc, const struct hda_fixup *fix,
+ 						 int action)
+ {
++	/*
++	* Same [17aa:3847] subsitem id is used on both Legion 7 16ACHG6 and Yoga Pro 7 14IMH9 causing
++	* volume control not to work Yoga Pro 7 14IMH9.
++	* Yoga Pro 7 14IMH9 seams to needs spk_pin fixup as YOGA9_14IMH9
++	* but dosen't seam to need cs35l41 fixup as CSC3551 or CLSA0100 not present in ACPI
++	*/
++	if (dmi_match(DMI_PRODUCT_VERSION, "Yoga Pro 7 14IMH9")) {
++		alc287_fixup_yoga9_14iap7_bass_spk_pin(cdc, fix, action);
++		return;
++	}
++
+ 	comp_generic_fixup(cdc, action, "i2c", "CLSA0100", "-%s:00-cs35l41-hda.%d", 2);
+ }
+ 
+-- 
+2.45.2
+
